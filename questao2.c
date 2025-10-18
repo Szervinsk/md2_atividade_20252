@@ -2,15 +2,16 @@
 
 // Função para calcular o Máximo Divisor Comum (MDC)
 // utilizando o Algoritmo de Euclides.
-// a = bq + r -> usando mod
 int mdc(int a, int b)
 {
     printf("\n--- Calculando MDC(%d, %d) ---\n", a, b);
     int resto;
+    int passo_mdc = 1; // Contador para os passos do MDC
     while (b != 0)
     {
         resto = a % b;
-        printf("   -> Passo do Algoritmo de Euclides: %d mod %d = %d\n", a, b, resto);
+        // Indicador de passo para cada iteração do algoritmo
+        printf("    -> [Passo %d do MDC] %d mod %d = %d\n", passo_mdc++, a, b, resto);
         a = b;
         b = resto;
     }
@@ -26,7 +27,7 @@ int mmc(int a, int b)
         return 0;
     }
 
-    printf("\n--> Calculando MMC(%d, %d)\n", a, b);
+    printf("--> Calculando MMC(%d, %d)\n", a, b);
     printf("    Formula: (%d * %d) / MDC(%d, %d)\n", a, b, a, b);
 
     // fórmula mmc = (a * b) / mdc(a, b) => (a / mdc(a,b)) * b;
@@ -38,43 +39,51 @@ int mmc(int a, int b)
 
 int main()
 {
-    int n;        
-    int ciclos[10]; // Array para armazenar os ciclos (até 10)
+    int n;
+    int ciclos[10]; // Array para armazenar os ciclos (até 10) [cite: 90]
     int i;
 
-    // Leitura do número de chaves
+    // ETAPA 1: Entrada de dados
+    printf("--- PASSO 1: ENTRADA DE DADOS ---\n");
     printf("Digite o numero de chaves (N): ");
     scanf("%d", &n);
 
-    // Lê os N cicllos
     printf("Digite os %d ciclos separados por espaco: ", n);
     for (i = 0; i < n; i++)
     {
         scanf("%d", &ciclos[i]);
     }
-    printf("INICIANDO CALCULO DO MMC PARA OS CICLOS...\n");
+    printf("\n============================================\n");
 
-    // cálculo mmc (primeiro)
+    // ETAPA 2: Processamento
+    printf("--- PASSO 2: CALCULO ITERATIVO DO MMC ---\n");
     int resultado_mmc = ciclos[0];
-    printf("MMC inicial = %d\n", resultado_mmc);
+    printf("Valor inicial para o MMC = %d\n", resultado_mmc);
 
-    // iteração a partir do segundo termo para pegar o (ciclo[0], ciclo[1]) e assim por diante...
+    // Itera a partir do segundo ciclo para calcular o MMC total
     for (i = 1; i < n; i++)
     {
         printf("\n--------------------------------------------\n");
-        printf("Proxima iteracao: MMC atual (%d) e proximo ciclo (%d)\n", resultado_mmc, ciclos[i]);
+        // Indicador de sub-passo para cada iteração do MMC
+        printf("PASSO 2.%d: Calculando MMC(resultado_parcial, proximo_ciclo)\n", i);
+        printf("   -> MMC atual = %d | Proximo ciclo = %d\n", resultado_mmc, ciclos[i]);
         resultado_mmc = mmc(resultado_mmc, ciclos[i]);
-        printf("MMC parcial atualizado = %d\n", resultado_mmc);
+        printf("\n   => MMC parcial atualizado para: %d\n", resultado_mmc);
     }
 
-    // verifica se o limite do resultado foi atingido
+    printf("\n============================================\n");
+
+    // ETAPA 3: Apresentação do resultado
+    printf("--- PASSO 3: RESULTADO FINAL ---\n");
+    // Verifica se o resultado está dentro do limite de 50 anos [cite: 86]
     if (resultado_mmc > 50)
     {
-        printf("\nRESULTADO: Nao foi possivel encontrar um ano para sincronizacao dentro do limite de 50 anos (MMC = %d).\n", resultado_mmc);
+        printf("Conclusao: Nao foi possivel encontrar um ano para sincronizacao dentro do limite.\n");
+        printf("   -> O MMC calculado (%d) excede o limite de 50 anos.\n", resultado_mmc);
     }
     else
     {
-        printf("\nRESULTADO: O primeiro ano para sincronizacao e: %d\n", resultado_mmc);
+        printf("Conclusao: O primeiro ano para sincronizacao e: %d\n", resultado_mmc);
     }
 
     return 0;

@@ -5,34 +5,40 @@
 #endif
 
 // Função para calcular o máximo divisor comum (MDC) com exibição dos passos
-int mdcComPassos(int a, int b) {
+int mdcComPassos(int a, int b)
+{
     int resto;
-    // A condição do loop do Algoritmo de Euclides é enquanto o divisor (b) não for zero.
-    while (b != 0) { // [1] na linha 9 do PDF original
+    int passo_mdc = 1;
+    printf("   Iniciando Algoritmo de Euclides para MDC(%d, %d):\n", a, b);
+    while (b != 0)
+    {
         resto = a % b;
-        printf("Algoritmo de Euclides: %d mod %d = %d\n", a, b, resto);
-        // linha 10
+        printf("   [MDC Passo %d] %d mod %d = %d\n", passo_mdc++, a, b, resto);
         a = b;
-        // linha 14
         b = resto;
     }
+    printf("   MDC encontrado: %d\n", a);
     return a;
 }
 
-int inversoModular(int a, int m) {
+int inversoModular(int a, int m)
+{
     int m0 = m, t, q;
     int x0 = 0, x1 = 1;
     int A = a, B = m; // Variáveis para o printf final
+    int passo_ext = 1;
 
-    // linha 23: Verifica se existe inverso modular. Se mdc != 1, não existe.
-    if (mdcComPassos(a, m) != 1) {
-       printf("Nao existe inverso modular, pois mdc(%d, %d) != 1\n", a, m);
-       return -1; // Retorna -1 para indicar erro
+    // Etapa de verificação do MDC
+    if (mdcComPassos(a, m) != 1)
+    {
+        printf("\n   ERRO: Nao existe inverso modular, pois mdc(%d, %d) != 1\n", a, m);
+        return -1; // Retorna -1 para indicar erro
     }
 
-
+    printf("   Iniciando Algoritmo de Euclides Estendido:\n");
     // Algoritmo de Euclides Estendido
-    while (a > 1) { // A condição original de 'while (m != 0)' estava incorreta no PDF
+    while (a > 1)
+    {
         q = a / m;
         t = m;
         m = a % m;
@@ -41,75 +47,90 @@ int inversoModular(int a, int m) {
         t = x0;
         x0 = x1 - q * x0;
         x1 = t;
+        printf("   [Inv. Passo %d] q=%d, a=%d, m=%d | x0=%d, x1=%d\n", passo_ext++, q, a, m, x0, x1);
     }
 
-    if (x1 < 0) {
-      // linha 36
-      x1 = x1 + m0;
+    // Ajuste final para garantir que o inverso seja positivo
+    if (x1 < 0)
+    {
+        printf("   Ajuste final: %d (negativo) -> ", x1);
+        x1 = x1 + m0;
+        printf("%d (positivo)\n", x1);
     }
-    printf("\nSubstituindo, temos que o inverso de %d em mod %d e: %d.\n\n", A, B, x1);
+    printf("   Inverso Modular de %d (mod %d) e: %d.\n", A, B, x1);
     return x1;
 }
 
-long long powMod(int base, int exp, int mod) {
+long long powMod(int base, int exp, int mod)
+{
     long long res = 1;
     long long b = base % mod;
-    while (exp > 0) {
-        // linha 45: Se o expoente é ímpar, multiplica res por b
+    int passo_pow = 1;
+    int exp_original = exp;
+
+    printf("   Iniciando Exponenciacao Modular para %d^%d (mod %d):\n", base, exp_original, mod);
+    while (exp > 0)
+    {
+        printf("   [Exp. Passo %d] exp=%d, b=%lld, res=%lld", passo_pow++, exp, b, res);
+        // Se o expoente é ímpar, multiplica res por b
         if (exp % 2 == 1)
+        {
             res = (res * b) % mod;
-        
+            printf(" -> exp e impar, res atualizado para %lld\n", res);
+        }
+        else
+        {
+            printf(" -> exp e par, res mantido\n");
+        }
+
         b = (b * b) % mod;
         // Divide o expoente por 2
         exp >>= 1;
     }
+    printf("   Resultado da exponenciacao: %lld\n", res);
     return res;
 }
 
-
-int main() {
-    #ifdef WIN32
+int main()
+{
+#ifdef WIN32
     SetConsoleOutputCP(CP_UTF8);
-    #endif
+#endif
 
     int H, G, Zn, x, n1;
-    
+
+    printf("--- PASSO 1: Leitura dos Dados ---\n");
     printf("Insira H: ");
     scanf("%d", &H);
-    
     printf("Insira G: ");
     scanf("%d", &G);
-
     printf("Insira Zn: ");
     scanf("%d", &Zn);
-    
     printf("Insira x: ");
     scanf("%d", &x);
-    
     printf("Insira n1: ");
     scanf("%d", &n1);
-    
-    printf("\n");
 
-    // linha 72: Chama a função para calcular o inverso modular
+    printf("\n========================================\n");
+    printf("--- PASSO 2: Calculo do Inverso Modular de G (mod Zn) ---\n");
     int inverso = inversoModular(G, Zn);
-    
-    if (inverso != -1) {
-        int a = (long long)H * inverso % Zn; // Casting para long long para evitar overflow
-        
-        printf("Fazendo a multiplicacao modular: %d * %d mod %d = %d\n", H, inverso, Zn, a);
 
-        // Verifica qual teorema aplicar para a exponenciação
-        // Como n1 (13) é primo, o expoente x (10) pode ser reduzido por mod (n1-1) = 12
-        // x mod (n1-1) => 10 mod 12 = 10. Nesse caso, não há redução.
-        // O código do PDF não pedia a implementação da redução, apenas o cálculo.
-        
-        // linha 78: Chama a função de exponenciação modular
+    if (inverso != -1)
+    {
+        printf("\n========================================\n");
+        printf("--- PASSO 3: Calculo da Divisao Modular (H * G^-1) mod Zn ---\n");
+        int a = (long long)H * inverso % Zn; // Casting para evitar overflow
+        printf("   Calculo: (%d * %d) mod %d = %d\n", H, inverso, Zn, a);
+
+        printf("\n========================================\n");
+        printf("--- PASSO 4: Calculo da Exponenciacao Modular (a^x mod n1) ---\n");
         int resultado = powMod(a, x, n1);
-        
-        printf("Sendo %d o inverso de %d (mod %d)\n", inverso, G, Zn);
-        printf("Valor final da congruencia: %d\n", resultado);
+
+        printf("\n========================================\n");
+        printf("--- PASSO 5: Resultado Final ---\n");
+        printf("   O inverso de %d (mod %d) e %d.\n", G, Zn, inverso);
+        printf("   O valor final da congruencia e: %d\n", resultado);
     }
-    
+
     return 0;
 }
